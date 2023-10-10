@@ -1,0 +1,145 @@
+
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import androidx.annotation.Nullable;
+
+import java.lang.reflect.Array;
+import java.text.Format;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class SQLiteHelper extends SQLiteOpenHelper {
+
+    private static final String DATABASE_NAME = "mytestgo.db";
+    private static final int DATABASE_VERSION = 1;
+
+    public static final String key =null;
+    public static final String table = null;
+
+    public static final String TABLE_NAME = "MY_TABLE"; // 테이블 이름
+    //public static final String COLUMN_NAME_IDX = "MY_IDX"; // 컬럼 이름
+    public static final String COLUMN_NAME_KEY = "MY_KEY"; // 컬럼 이름
+    public static final String COLUMN_NAME_VALUE = "MY_VALUE"; // 컬럼 이름
+
+    SQLiteDatabase sqLiteDatabase;
+
+    public SQLiteHelper(@Nullable Context context){
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+
+    }
+
+
+    @Override
+    public void onCreate(SQLiteDatabase sqLiteDatabase) {
+
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS Members");
+
+        sqLiteDatabase.execSQL("create table Members (mID integer primary key autoincrement, Name text, Age text);");
+
+        sqLiteDatabase.execSQL("INSERT INTO Members VALUES ('1','Kim','20');");
+        sqLiteDatabase.execSQL("INSERT INTO Members VALUES ('2','Lee','30');");
+        sqLiteDatabase.execSQL("INSERT INTO Members VALUES ('3','Park','40');");
+        sqLiteDatabase.execSQL("INSERT INTO Members VALUES ('4','Choi','50');");
+
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+
+    }
+
+    public void InsertAL(String tableIAL, List InputAL){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String inputStrAL = new String();
+        inputStrAL = "";
+        for (int i = 0;i<InputAL.size();i++){
+            if(i > 0){
+                inputStrAL = inputStrAL + ",";
+            }
+            inputStrAL = inputStrAL + "'" + String.valueOf(InputAL.get(i)) + "'";
+
+        }
+
+        System.out.println(inputStrAL);
+
+        db.execSQL("INSERT INTO " +tableIAL+ " VALUES (" +inputStrAL+ ");");
+
+        return;
+    }
+
+
+    public void UpdateData(String tableUD, String UpdateCL, String UpdateDT, String KeyCU, String KeyDU){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE " +tableUD+ " SET " +UpdateCL+ "='" +UpdateDT+ "' WHERE " +KeyCU+ "='" +KeyDU+ "';");
+
+        return;
+    }
+
+    public void DeleteLine(String tableDL, String KeyCD, String KeyDD){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM "+tableDL+ " WHERE " +KeyCD+ " = '" +KeyDD+ "';");
+
+        return;
+    }
+
+    public ArrayList<String> getLineStr (String tableL, String ColumnNameL, String strL, Integer MaCoL){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " +tableL+ " WHERE " +ColumnNameL+"='" +strL+ "'",null);
+        // Members 테이블에서 Name 컬럼이 변수 'abc'의 값과 같은 행 지정 (변수를 쓸려면 변수 앞뒤에 작은 따옴표 필요)
+        ArrayList<String> result = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+            for (int i = 0;i<MaCoL;i++){
+                result.add(cursor.getString(i));
+            }
+            // 반복문을 통해 해당 행의 모든 데이터를 뽑아옴
+            // table은 abc는 키값, MaCo는 테이블의 컬럼 수
+            // for문의 조건식이 i<MaCo 가 되도록 함, 크면 오류 발생
+        }
+        cursor.close();
+        return result;
+    }
+
+    public ArrayList<String> getRowStr (String tableR, String ColumnNameR){
+        SQLiteDatabase db = this.getReadableDatabase();
+        //DB 선언
+        Cursor cursor = db.rawQuery("SELECT " +ColumnNameR+ " FROM " +tableR+ "",null);
+        // select 쿼리문
+        ArrayList<String> result = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            result.add(cursor.getString(0));
+        }
+        cursor.close();
+        return result;
+    }
+
+    public ArrayList<List> getAllStr (String tableA, Integer MaCoA){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " +tableA+ "",null);
+        ArrayList<String> result = new ArrayList<>();
+        ArrayList<String> result1 = new ArrayList<>();
+        ArrayList<List> result2 = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+
+            for (int i = 0;i<MaCoA;i++) {
+                result.add(cursor.getString(i));
+            }
+        }
+
+        cursor.close();
+
+        for (int i = 0;i<(result.size()/MaCoA);i++){
+            result2.add(result.subList(i*MaCoA, i*MaCoA+MaCoA));
+        }
+
+        return result2;
+    }
+
+
+
+}
